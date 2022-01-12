@@ -91,9 +91,19 @@ if(isset($_SESSION['usuario']))
                                                     <td><?php echo $periodo_nombre; ?></td>
                                                     <td><?php echo $estudiante_cedula; ?> - <?php echo  $estudiante_nombres; ?> <?php echo $estudiante_apellidos; ?></php></td>
                                                     <td>
+                                                        <?php if($row['estatus'] == 0){ ?>
+                                                            <span class="badge badge-light">No entregado</span>
+                                                        <?php }else if($row['estatus'] == 1){ ?>
+                                                            <span class="badge badge-success">Aprobado</span>
+                                                        <?php }else if($row['estatus'] == 2){ ?>
+                                                            <span class="badge badge-danger">Reprobado</span>
+                                                        <?php } ?>
+                                                    </td>
+                                                    <td>
                                                         <div class="btn-group">
-                                                            <button type="button" onclick="editar(<?php echo $row['id']; ?>)" class="btn btn-outline-primary"><i class="fas fa-edit"></i></i></button>
-                                                            <button type="button" onclick="eliminar(<?php echo $row['id']; ?>)" class="btn btn-outline-primary"><i class="fas fa-trash"></i></i></button>
+                                                            <a href="trabajos_jurados.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-outline-primary"><i class="fas fa-users"></i></a>
+                                                            <button type="button" onclick="editar(<?php echo $row['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></i></button>
+                                                            <button type="button" onclick="eliminar(<?php echo $row['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-trash"></i></i></button>
                                                         </div>
                                                     </td>
                                                 </tr>

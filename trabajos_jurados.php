@@ -3,7 +3,12 @@ session_start();
 include('conexion.php');
 if(isset($_SESSION['usuario']))
 {
-    $page_name = 'trabajos';
+    $page_name      = 'trabajos';
+    $trabajo_id     = $_GET['id'];
+    $sql_trabajo    = $con->query("SELECT profesor_id, titulo FROM trabajos WHERE id = $trabajo_id");
+    $row1           = mysqli_fetch_assoc($sql_trabajo);
+    $profesor_id    = $row1['profesor_id'];
+    $titulo_trabajo = $row1['titulo'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -30,8 +35,6 @@ if(isset($_SESSION['usuario']))
     <div id="wrapper">
         <!-- Sidebar -->
         <?php include('layouts/sidebar.php'); ?>
-        <?php include('modal_trabajo_add.php'); ?>
-        <?php include('modal_trabajo_edit.php'); ?>
         <!-- End of Sidebar -->
 
         <!-- Content Wrapper -->
@@ -48,39 +51,77 @@ if(isset($_SESSION['usuario']))
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Trabajos</h1>
+                    <h1 class="h3 mb-5 text-gray-800">Trabajos <small>Jurados</small></h1>
                     <div class="row">
                         <div class="col-lg-12">
-                            <hr>
-                            <h3 class="text-center">Jurados</h3>
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <select class="form-control selectpicker" id="jurado" data-live-search="true">
-                                            <option value="">Seleccione</option>
-                                            <?php
-                                            $sql_profesores = $con->query("SELECT * FROM profesores ORDER BY nombres ASC, apellidos ASC");
-                                            while($row = mysqli_fetch_assoc($sql_profesores)){
-                                            ?>
-                                            <option value="<?php echo $row['id']; ?>_<?php echo $row['cedula']; ?>_<?php echo $row['nombres']; ?>_<?php echo $row['apellidos']; ?>"><?php echo $row['cedula']; ?> - <?php echo $row['nombres']; ?> <?php echo $row['apellidos']; ?></option>
-                                            <?php } ?>
-                                        </select>
+                             <!-- Titulo del trabajo -->
+                             <div class="card shadow mb-4">
+                                <!-- Card Header - Accordion -->
+                                <a href="#collapseCardExample" class="d-block card-header py-3" data-toggle="collapse"
+                                    role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                                    <h6 class="m-0 font-weight-bold text-primary">Titulo del trabajo</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse show" id="collapseCardExample">
+                                    <div class="card-body">
+                                        <?php echo $titulo_trabajo; ?>
                                     </div>
                                 </div>
-                                <div class="col-lg-6">
-                                    <button type="button" id="add" onclick="agregar_jurado()" class="btn btn-warning mb-2"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <input type="hidden" name="trabajo_id" id="trabajo_id" value="<?php echo $_GET['id']; ?>">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Jurados</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <select class="form-control selectpicker" id="profesor_id" data-live-search="true">
+                                                    <option value="">Seleccione</option>
+                                                    <?php
+                                                    $sql_profesores = $con->query("SELECT * FROM profesores WHERE id NOT IN (SELECT profesor_id FROM trabajos WHERE profesor_id = '$profesor_id') AND id NOT IN (SELECT profesor_id FROM trabajos_jurados WHERE trabajo_id = '$trabajo_id') ORDER BY nombres ASC, apellidos ASC");
+                                                    while($row = mysqli_fetch_assoc($sql_profesores)){
+                                                    ?>
+                                                    <option value="<?php echo $row['id']; ?>"><?php echo $row['cedula']; ?> - <?php echo $row['nombres']; ?> <?php echo $row['apellidos']; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <button type="button" onclick="guardar()" class="btn btn-primary mb-2">Agregar</button>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Cedula</th>
+                                                    <th>Nombres</th>
+                                                    <th>Apellidos</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                $sql_trabajos_jurados = $con->query("SELECT tj.id, p.cedula, p.nombres, p.apellidos FROM profesores p INNER JOIN trabajos_jurados tj ON p.id = tj.profesor_id WHERE tj.trabajo_id = $trabajo_id");
+                                                while($row2 = mysqli_fetch_assoc($sql_trabajos_jurados))
+                                                {
+                                                ?>
+                                                <tr>
+                                                    <td><?php echo $row2['cedula']; ?></td>
+                                                    <td><?php echo $row2['nombres']; ?></td>
+                                                    <td><?php echo $row2['apellidos']; ?></td>
+                                                    <td>
+                                                        <button type="button" onclick="eliminar(<?php echo $row2['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <td>Cedula</td>
-                                        <td>Nombres</td>
-                                        <td>Apellidos</td>
-                                    </tr>
-                                </thead>
-                                <tbody id="rows"></tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
@@ -114,27 +155,64 @@ if(isset($_SESSION['usuario']))
     <script src="js/i18n/defaults-es_ES.min.js"></script>
     <script src="js/sweetalert2.all.min.js"></script>
     <script>
-        var asesores = [];
         $(document).ready(function() {
             $('#dataTable').DataTable();
             $('.selectpicker').selectpicker();
         });
 
-        function agregar()
+        function guardar() {
+            var profesor_id = $('#profesor_id').val();
+            var trabajo_id  = $('#trabajo_id').val();
+            if(profesor_id == ''){
+                msg_error('Seleccione el profesor');
+            }else if(trabajo_id.trim() == ''){
+                msg_error('No se paso el identificador del trabajo');
+            }else{
+                var data = {
+                    profesor_id, trabajo_id
+                };
+                $.ajax({
+                    data: data,
+                    url:    'acciones/v_trabajos_jurados_add.php',
+                    type:   'post',
+                    success:  function (response) {
+                        msg_success('Registro almacenado correctamente')
+                    },
+                    error: function (error) {
+                        msg_error('Ocurrio un error interno')
+                    }
+                });
+            }
+        }
+
+        function eliminar(id)
         {
-            var jurado      = $('#jurado').val();
-            var array       = jurado.split('_');
-            var cedula      = array[1] ? array[1] : '';
-            var nombres     = array[2] ? array[2] : '';
-            var apellidos   = array[3] ? array[3] : '';
-            asesores.push(array[0]);
-            info += `
-                <tr>
-                    <td>${cedula}</td>
-                    <td>${nombres}</td>
-                    <td>${apellidos}</td>
-                </tr>`;
-                $('#rows').append(info);
+            Swal.fire({
+                title: '¿Esta seguro de que desea eliminar el profesor?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Confirmar'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        data:  {
+                            id
+                        },
+                        url:   'acciones/v_trabajos_jurados_delete.php',
+                        type:  'post',
+                        success:  function (response) {
+                            msg_success('Registro eliminado correctamente')
+                        },
+                        error: function (error) {
+                            msg_error('Ocurrio un error interno')
+                        }
+                    });
+                }
+            });
         }
 
         function msg_error(title)
@@ -156,7 +234,7 @@ if(isset($_SESSION['usuario']))
                 showConfirmButton: false,
                 timer: 1000
             }).then(function(){
-                window.location = 'profesores.php';
+                window.location = 'trabajos_jurados.php?id=<?php echo $_GET['id']; ?>';
             })
         }
     </script>

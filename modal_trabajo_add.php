@@ -21,7 +21,7 @@
                     </div>
                     <div class="col-lg-6">
                         <label>Periodo</label>
-                        <select class="form-control selectpicker" id="periodo_id" data-live-search="true">
+                        <select class="form-control selectpicker" id="periodo_id" onchange="obtener_estudiantes(this.value)" data-live-search="true">
                             <?php
                             $sql_periodos = $con->query("SELECT * FROM periodos ORDER BY actual DESC");
                             while($row = mysqli_fetch_assoc($sql_periodos)){
@@ -38,7 +38,8 @@
                             <select class="form-control selectpicker" id="estudiante_id" data-live-search="true">
                                 <option value="">Seleccione</option>
                                 <?php
-                                $sql_estudiantes = $con->query("SELECT * FROM estudiantes ORDER BY nombres ASC, apellidos ASC");
+                                $periodo_id = isset($_SESSION['periodo']) ? $_SESSION['periodo'] : '';
+                                $sql_estudiantes= $con->query("SELECT * FROM estudiantes WHERE id NOT IN (SELECT e.id FROM estudiantes e INNER JOIN trabajos t ON e.id = t.estudiante_id WHERE (t.estatus = 1 OR t.estatus = 0) OR (t.estatus = 2 AND t.periodo_id = '$periodo_id')) ORDER BY nombres ASC, apellidos ASC");
                                 while($row = mysqli_fetch_assoc($sql_estudiantes)){
                                 ?>
                                 <option value="<?php echo $row['id']; ?>"><?php echo $row['cedula']; ?> - <?php echo $row['nombres']; ?> <?php echo $row['apellidos']; ?></option>

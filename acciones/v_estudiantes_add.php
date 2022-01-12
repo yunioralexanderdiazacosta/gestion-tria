@@ -1,7 +1,7 @@
 <?php
 include("../conexion.php");
 $cedula     = $_POST['cedula'];
-$nombres    = $_POST['nombres'];
-$apellidos  = $_POST['apellidos'];
+$nombres    = ucwords($_POST['nombres']);
+$apellidos  = ucwords($_POST['apellidos']);
 $con->query("INSERT INTO estudiantes (cedula, nombres, apellidos) VALUES ('$cedula', '$nombres', '$apellidos')");
 ?>
