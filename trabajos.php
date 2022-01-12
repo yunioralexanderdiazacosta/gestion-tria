@@ -149,6 +149,7 @@ if(isset($_SESSION['usuario']))
         var asesores = [];
         $(document).ready(function() {
             $('#dataTable').DataTable();
+            obtener_estudiantes();
             $('.selectpicker').selectpicker();
         });
 
@@ -197,23 +198,39 @@ if(isset($_SESSION['usuario']))
         });
 
         $('#actualizar').click(function () {
-            var cedula      = $('#cedula_edit').val();
-            var nombres     = $('#nombres_edit').val();
-            var apellidos   = $('#apellidos_edit').val();
-            var id          = $('#id').val();
-            if(cedula.trim() == ''){
-                msg_error('Ingresa el número de cedula');
-            }else if(nombres.trim() == ''){
-                msg_error('Ingresa nombres');
-            }else if(apellidos.trim() == ''){
-                msg_error('Ingresa apellidos');
+            var titulo          = $('#titulo_edit').val();
+            var empresa         = $('#empresa_edit').val();
+            var periodo_id      = $('#periodo_id_edit').val();
+            var estudiante_id   = $('#estudiante_id_edit').val();
+            var profesor_id     = $('#profesor_id_edit').val();
+            var fecha_entrega   = $('#fecha_entrega_edit').val();
+            var estatus         = $('#estatus_edit').val()
+            if(titulo.trim() == ''){
+                msg_error('Ingresa el titulo');
+            }else if(empresa.trim() == ''){
+                msg_error('Ingresa la empresa');
+            }else if(periodo_id == ''){
+                msg_error('Seleccione el periodo');
+            }else if(estudiante_id == ''){
+                msg_error('Seleccione el estudiante');
+            }else if(profesor_id == ''){
+                msg_error('Seleccione el asesor');
             }else{
+                var data = {
+                    titulo:     titulo,
+                    empresa:    empresa,
+                    periodo_id:     periodo_id,
+                    estudiante_id:  estudiante_id,
+                    profesor_id: profesor_id,
+                    estatus: estatus
+                };
+                if(fecha_entrega != ""){
+                    data.fecha_entrega = fecha_entrega;
+                }
                 $.ajax({
-                    data:  {
-                        cedula, nombres, apellidos, id
-                    },
-                    url:   'acciones/v_profesores_update.php',
-                    type:  'post',
+                    data: data,
+                    url:    'acciones/v_trabajos_update.php',
+                    type:   'post',
                     success:  function (response) {
                         msg_success('Registro actualizado correctamente')
                     },
@@ -228,14 +245,20 @@ if(isset($_SESSION['usuario']))
         {
             $.ajax({
                 data: {id},
-                url:  'acciones/v_profesores_edit.php',
+                url:  'acciones/v_trabajos_edit.php',
                 type: 'post',
                 success:  function (response) {
                     $('#editModal').modal('show');
+                    obtener_estudiantes_editar(response.estudiante_id, response.periodo_id);
+                    obtener_profesores_editar(response.id, response.profesor_id);
                     $('#id').val(response.id);
-                    $('#cedula_edit').val(response.cedula);
-                    $('#nombres_edit').val(response.nombres);
-                    $('#apellidos_edit').val(response.apellidos);
+                    $('#titulo_edit').val(response.titulo);
+                    $('#empresa_edit').val(response.empresa);
+                    $('#periodo_id_edit').val(response.periodo_id);
+                    $('#estudiante_id_edit').val(response.estudiante_id);
+                    $('#profesor_id_edit').val(response.profesor_id);
+                    $('#fecha_entrega_edit').val(response.fecha_entrega);
+                    $('#estatus_edit').val(response.estatus);
                 },
                 error: function (error) {
                     msg_error('Ocurrio un error interno')
@@ -246,7 +269,7 @@ if(isset($_SESSION['usuario']))
         function eliminar(id)
         {
             Swal.fire({
-                title: '¿Esta seguro de que desea eliminar el profesor?',
+                title: '¿Esta seguro de que desea eliminar el trabajo?',
                 text: "¡No podrás revertir esto!",
                 icon: 'warning',
                 showCancelButton: true,
@@ -260,7 +283,7 @@ if(isset($_SESSION['usuario']))
                         data:  {
                             id
                         },
-                        url:   'acciones/v_profesores_delete.php',
+                        url:   'acciones/v_trabajos_delete.php',
                         type:  'post',
                         success:  function (response) {
                             msg_success('Registro eliminado correctamente')
@@ -273,21 +296,57 @@ if(isset($_SESSION['usuario']))
             });
         }
 
-        function agregar_asesor()
+        function obtener_estudiantes(id = '')
         {
-            var jurado      = $('#jurado').val();
-            var array       = jurado.split('_');
-            var cedula      = array[1] ? array[1] : '';
-            var nombres     = array[2] ? array[2] : '';
-            var apellidos   = array[3] ? array[3] : '';
-            asesores.push(array[0]);
-            info += `
-                <tr>
-                    <td>${cedula}</td>
-                    <td>${nombres}</td>
-                    <td>${apellidos}</td>
-                </tr>`;
-                $('#rows').append(info);
+            if(id != ''){
+                var data = { periodo: id  }
+            }else{
+                var data = '';
+            }
+            $.ajax({
+                data: data,
+                url:   'acciones/v_estudiantes_get_1.php',
+                type:  'post',
+                success:  function (response) {
+                    $('#estudiante_id').html(response);
+                    $('.selectpicker').selectpicker('refresh')
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
+        }
+
+        function obtener_estudiantes_editar(estudiante_id, periodo_id)
+        {
+            $.ajax({
+                data: { estudiante_id, periodo_id },
+                url:   'acciones/v_estudiantes_get_2.php',
+                type:  'post',
+                success:  function (response) {
+                    $('#estudiante_id_edit').html(response);
+                    $('.selectpicker').selectpicker('refresh')
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
+        }
+
+        function obtener_profesores_editar(trabajo_id, profesor_id)
+        {
+            $.ajax({
+                data: { trabajo_id, profesor_id },
+                url:   'acciones/v_profesores_get_1.php',
+                type:  'post',
+                success:  function (response) {
+                    $('#profesor_id_edit').html(response);
+                    $('.selectpicker').selectpicker('refresh')
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
         }
 
         function msg_error(title)
