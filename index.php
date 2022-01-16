@@ -61,7 +61,7 @@ if (isset($_SESSION['usuario'])) {
     width: 100%;
     height: 100%;
     line-height: 0;
-    background-color: #b1c2d9;
+    background-color: #fd7e14;
     color: #fff;
 }
 
@@ -72,9 +72,10 @@ if (isset($_SESSION['usuario'])) {
     <body id="page-top">
         <!-- Page Wrapper -->
         <div id="wrapper">
-            <?php include('modal_trabajo_add.php'); ?>
             <!-- Sidebar -->
             <?php include('layouts/sidebar.php'); ?>
+            <?php include('modal_trabajo_add.php'); ?>
+            <?php include('modal_trabajo_edit.php'); ?>
             <!-- End of Sidebar -->
 
             <!-- Content Wrapper -->
@@ -92,7 +93,7 @@ if (isset($_SESSION['usuario'])) {
 
                         <!-- Page Heading -->
                         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                            <h1 class="h3 mb-0 text-gray-800">Inicio</h1>
+                            <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-fw fa-tachometer-alt"></i> Inicio</h1>
                         </div>
 
                         <!-- Content Row -->
@@ -166,7 +167,7 @@ if (isset($_SESSION['usuario'])) {
                                 <nav>
                                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                         <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#trabajos" role="tab" aria-controls="nav-home" aria-selected="true">Trabajos</a>
-                                        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#estadisticas" role="tab" aria-controls="nav-profile" aria-selected="false">Estadistica</a>
+                                        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#estadisticas" role="tab" aria-controls="nav-profile" aria-selected="false">Estadística</a>
                                     </div>
                                 </nav>
                                 <div class="tab-content" id="nav-tabContent">
@@ -319,46 +320,267 @@ if (isset($_SESSION['usuario'])) {
 
         <!-- Page level custom scripts -->
         <script>
-            $(document).ready(function() {
-                $('#dataTable').DataTable();
-                $('.selectpicker').selectpicker();
-                $('[data-toggle="tooltip"]').tooltip();
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                language:{sProcessing:"Procesando...",sLengthMenu:"Mostrar _MENU_ registros",sZeroRecords:"No se encontraron resultados",sEmptyTable:"Ningún dato disponible en esta tabla",sInfo:"Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",sInfoEmpty:"Mostrando registros del 0 al 0 de un total de 0 registros",sInfoFiltered:"(filtrado de un total de _MAX_ registros)",sInfoPostFix:"",sSearch:"Buscar:",sUrl:"",sInfoThousands:",",sLoadingRecords:"Cargando...",oPaginate:{sFirst:"Primero",sLast:"Último",sNext:"Siguiente",sPrevious:"Anterior"},oAria:{sSortAscending:": Activar para ordenar la columna de manera ascendente",sSortDescending:": Activar para ordenar la columna de manera descendente"},buttons:{print:"Imprimir"}}
             });
+            $('.selectpicker').selectpicker();
+            $('[data-toggle="tooltip"]').tooltip();
+        });
 
-            Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-            Chart.defaults.global.defaultFontColor = '#858796';
+        Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+        Chart.defaults.global.defaultFontColor = '#858796';
 
-            // Comparación de trabajos
-            var ctx = document.getElementById("myPieChart");
-            var myPieChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ["Aprobado", "No entregado", "Reprobado"],
-                    datasets: [{
-                        data: [<?php echo $aprobados; ?>, <?php echo $no_entregados; ?>, <?php echo $reprobados; ?>],
-                        backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b'],
-                        hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
-                        hoverBorderColor: "rgba(234, 236, 244, 1)",
-                    }],
+        // Comparación de trabajos
+        var ctx = document.getElementById("myPieChart");
+        var myPieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ["Aprobado", "No entregado", "Reprobado"],
+                datasets: [{
+                    data: [<?php echo $aprobados; ?>, <?php echo $no_entregados; ?>, <?php echo $reprobados; ?>],
+                    backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b'],
+                    hoverBackgroundColor: ['rgba(28,200,138,.25)', '#f4b619', 'rgba(231,74,59,.9)'],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#000",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
                 },
-                options: {
-                    maintainAspectRatio: false,
-                    tooltips: {
-                        backgroundColor: "rgb(255,255,255)",
-                        bodyFontColor: "#858796",
-                        borderColor: '#dddfeb',
-                        borderWidth: 1,
-                        xPadding: 15,
-                        yPadding: 15,
-                        displayColors: false,
-                        caretPadding: 10,
-                    },
-                    legend: {
-                        display: false
-                    },
-                    cutoutPercentage: 80,
+                legend: {
+                    display: false
                 },
+                cutoutPercentage: 80,
+            },
+        });
+
+        $('#guardar').click(function () {
+            var titulo          = $('#titulo').val();
+            var empresa         = $('#empresa').val();
+            var periodo_id      = $('#periodo_id').val();
+            var estudiante_id   = $('#estudiante_id').val();
+            var profesor_id     = $('#profesor_id').val();
+            var fecha_entrega   = $('#fecha_entrega').val();
+            var estatus         = $('#estatus').val()
+            if(titulo.trim() == ''){
+                msg_error('Ingresa el titulo');
+            }else if(empresa.trim() == ''){
+                msg_error('Ingresa la empresa');
+            }else if(periodo_id == ''){
+                msg_error('Seleccione el periodo');
+            }else if(estudiante_id == ''){
+                msg_error('Seleccione el estudiante');
+            }else if(profesor_id == ''){
+                msg_error('Seleccione el asesor');
+            }else{
+                var data = {
+                    titulo:     titulo,
+                    empresa:    empresa,
+                    periodo_id:     periodo_id,
+                    estudiante_id:  estudiante_id,
+                    profesor_id: profesor_id,
+                    estatus: estatus
+                };
+                if(fecha_entrega != ""){
+                    data.fecha_entrega = fecha_entrega;
+                }
+                $.ajax({
+                    data: data,
+                    url:    'acciones/v_trabajos_add.php',
+                    type:   'post',
+                    success:  function (response) {
+                        msg_success('Registro almacenado correctamente')
+                    },
+                    error: function (error) {
+                        msg_error('Ocurrio un error interno')
+                    }
+                });
+            }
+        });
+
+        $('#actualizar').click(function () {
+            var titulo          = $('#titulo_edit').val();
+            var empresa         = $('#empresa_edit').val();
+            var periodo_id      = $('#periodo_id_edit').val();
+            var estudiante_id   = $('#estudiante_id_edit').val();
+            var profesor_id     = $('#profesor_id_edit').val();
+            var fecha_entrega   = $('#fecha_entrega_edit').val();
+            var estatus         = $('#estatus_edit').val()
+            if(titulo.trim() == ''){
+                msg_error('Ingresa el titulo');
+            }else if(empresa.trim() == ''){
+                msg_error('Ingresa la empresa');
+            }else if(periodo_id == ''){
+                msg_error('Seleccione el periodo');
+            }else if(estudiante_id == ''){
+                msg_error('Seleccione el estudiante');
+            }else if(profesor_id == ''){
+                msg_error('Seleccione el asesor');
+            }else{
+                var data = {
+                    titulo:     titulo,
+                    empresa:    empresa,
+                    periodo_id:     periodo_id,
+                    estudiante_id:  estudiante_id,
+                    profesor_id: profesor_id,
+                    estatus: estatus
+                };
+                if(fecha_entrega != ""){
+                    data.fecha_entrega = fecha_entrega;
+                }
+                $.ajax({
+                    data: data,
+                    url:    'acciones/v_trabajos_update.php',
+                    type:   'post',
+                    success:  function (response) {
+                        msg_success('Registro actualizado correctamente')
+                    },
+                    error: function (error) {
+                        msg_error('Ocurrio un error interno')
+                    }
+                });
+            }
+        });
+
+        function editar(id)
+        {
+            $.ajax({
+                data: {id},
+                url:  'acciones/v_trabajos_edit.php',
+                type: 'post',
+                success:  function (response) {
+                    $('#editModal').modal('show');
+                    obtener_estudiantes_editar(response.estudiante_id, response.periodo_id);
+                    obtener_profesores_editar(response.id, response.profesor_id);
+                    $('#id').val(response.id);
+                    $('#titulo_edit').val(response.titulo);
+                    $('#empresa_edit').val(response.empresa);
+                    $('#periodo_id_edit').val(response.periodo_id);
+                    $('#estudiante_id_edit').val(response.estudiante_id);
+                    $('#profesor_id_edit').val(response.profesor_id);
+                    $('#fecha_entrega_edit').val(response.fecha_entrega);
+                    $('#estatus_edit').val(response.estatus);
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
             });
+        }
+
+        function eliminar(id)
+        {
+            Swal.fire({
+                title: '¿Esta seguro de que desea eliminar el trabajo?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Confirmar'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        data:  {
+                            id
+                        },
+                        url:   'acciones/v_trabajos_delete.php',
+                        type:  'post',
+                        success:  function (response) {
+                            msg_success('Registro eliminado correctamente')
+                        },
+                        error: function (error) {
+                            msg_error('Ocurrio un error interno')
+                        }
+                    });
+                }
+            });
+        }
+
+        function obtener_estudiantes(id = '')
+        {
+            if(id != ''){
+                var data = { periodo: id  }
+            }else{
+                var data = '';
+            }
+            $.ajax({
+                data: data,
+                url:   'acciones/v_estudiantes_get_1.php',
+                type:  'post',
+                success:  function (response) {
+                    $('#estudiante_id').html(response);
+                    $('.selectpicker').selectpicker('refresh')
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
+        }
+
+        function obtener_estudiantes_editar(estudiante_id, periodo_id)
+        {
+            $.ajax({
+                data: { estudiante_id, periodo_id },
+                url:   'acciones/v_estudiantes_get_2.php',
+                type:  'post',
+                success:  function (response) {
+                    $('#estudiante_id_edit').html(response);
+                    $('.selectpicker').selectpicker('refresh')
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
+        }
+
+        function obtener_profesores_editar(trabajo_id, profesor_id)
+        {
+            $.ajax({
+                data: { trabajo_id, profesor_id },
+                url:   'acciones/v_profesores_get_1.php',
+                type:  'post',
+                success:  function (response) {
+                    $('#profesor_id_edit').html(response);
+                    $('.selectpicker').selectpicker('refresh')
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
+        }
+
+        function msg_error(title)
+        {
+            Swal.fire({
+                title: 'Error!',
+                text: title,
+                icon: 'error',
+                confirmButtonText: 'Cerrar'
+            })
+        }
+
+        function msg_success(title)
+        {
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: title,
+                showConfirmButton: false,
+                timer: 1000
+            }).then(function(){
+                window.location = 'index.php';
+            })
+        }
         </script>
     </body>
 

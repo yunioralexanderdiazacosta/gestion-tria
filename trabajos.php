@@ -48,11 +48,16 @@ if(isset($_SESSION['usuario']))
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Trabajos</h1>
+                    <h1 class="h3 mb-2 text-gray-800"><i class="fas fa-fw fa-book"></i> Trabajos</h1>
                     <div class="row">
                         <div class="col-lg-12">
                         <div class="text-right my-3">
-                            <button type="button" class="btn btn-primary text-right" data-toggle="modal" data-target="#addModal">Agregar</button>
+                            <button type="button" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#addModal">
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-plus-circle"></i>
+                                </span>
+                                <span class="text">Agregar</span>
+                            </button>
                         </div>
                             <!-- DataTales Example -->
                             <div class="card shadow mb-4">
@@ -101,9 +106,9 @@ if(isset($_SESSION['usuario']))
                                                     </td>
                                                     <td>
                                                         <div class="btn-group">
-                                                            <a href="trabajos_jurados.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-outline-primary"><i class="fas fa-users"></i></a>
-                                                            <button type="button" onclick="editar(<?php echo $row['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></i></button>
-                                                            <button type="button" onclick="eliminar(<?php echo $row['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-trash"></i></i></button>
+                                                            <a href="trabajos_jurados.php?id=<?php echo $row['id']; ?>" data-toggle="tooltip" title="jurados" class="btn btn-sm btn-outline-primary"><i class="fas fa-users"></i></a>
+                                                            <button type="button" data-toggle="tooltip" title="editar" onclick="editar(<?php echo $row['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></i></button>
+                                                            <button type="button" data-toggle="tooltip" title="eliminar" onclick="eliminar(<?php echo $row['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-trash"></i></i></button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -148,7 +153,12 @@ if(isset($_SESSION['usuario']))
     <script>
         var asesores = [];
         $(document).ready(function() {
-            $('#dataTable').DataTable();
+            $('#dataTable').DataTable({
+                language:{sProcessing:"Procesando...",sLengthMenu:"Mostrar _MENU_ registros",sZeroRecords:"No se encontraron resultados",sEmptyTable:"Ningún dato disponible en esta tabla",sInfo:"Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",sInfoEmpty:"Mostrando registros del 0 al 0 de un total de 0 registros",sInfoFiltered:"(filtrado de un total de _MAX_ registros)",sInfoPostFix:"",sSearch:"Buscar:",sUrl:"",sInfoThousands:",",sLoadingRecords:"Cargando...",oPaginate:{sFirst:"Primero",sLast:"Último",sNext:"Siguiente",sPrevious:"Anterior"},oAria:{sSortAscending:": Activar para ordenar la columna de manera ascendente",sSortDescending:": Activar para ordenar la columna de manera descendente"},buttons:{print:"Imprimir"}},
+                "drawCallback": function(settings) {
+                    $('[data-toggle="tooltip"]').tooltip();
+                }
+            });
             obtener_estudiantes();
             $('.selectpicker').selectpicker();
         });

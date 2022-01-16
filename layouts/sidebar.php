@@ -1,10 +1,8 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-        <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-laugh-wink"></i>
-        </div>
-        <div class="sidebar-brand-text mx-3">Control TRIA</div>
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
+        <img src="img/logo2.png" width="50">
+        <div class="sidebar-brand-text text-dark mx-3"><span class="badge badge-warning">Control TRIA</span></div>
     </a>
 
     <!-- Divider -->
@@ -19,25 +17,25 @@
 
     <li class="nav-item <?php if($page_name == 'periodos') echo 'active'; ?>">
         <a class="nav-link" href="periodos.php">
-        <i class="fas fa-fw fa-university"></i>
+        <i class="fas fa-fw fa-calendar"></i>
         <span>Periodos</span></a>
     </li>
 
-    <li class="nav-item">
-        <a class="nav-link <?php if($page_name == 'profesores') echo 'active'; ?>" href="profesores.php">
+    <li class="nav-item <?php if($page_name == 'profesores') echo 'active'; ?>">
+        <a class="nav-link" href="profesores.php">
         <i class="fas fa-fw fa-chalkboard-teacher"></i>
         <span>Profesores</span></a>
     </li>
 
-    <li class="nav-item">
-        <a class="nav-link <?php if($page_name == 'estudiantes') echo 'active'; ?>" href="estudiantes.php">
+    <li class="nav-item <?php if($page_name == 'estudiantes') echo 'active'; ?>">
+        <a class="nav-link" href="estudiantes.php">
         <i class="fas fa-fw fa-user-graduate"></i>
         <span>Estudiantes</span></a>
     </li>
 
-    <li class="nav-item">
-        <a class="nav-link <?php if($page_name == 'trabajos') echo 'active'; ?>" href="trabajos.php">
-        <i class="fas fa-fw fa-user-graduate"></i>
+    <li class="nav-item <?php if($page_name == 'trabajos') echo 'active'; ?>">
+        <a class="nav-link" href="trabajos.php">
+        <i class="fas fa-fw fa-book"></i>
         <span>Trabajos</span></a>
     </li>
 </ul>

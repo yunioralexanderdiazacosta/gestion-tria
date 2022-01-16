@@ -51,7 +51,7 @@ if(isset($_SESSION['usuario']))
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-5 text-gray-800">Trabajos <small>Jurados</small></h1>
+                    <h1 class="h3 mb-5 text-gray-800"><i class="fas fa-fw fa-users"></i> Trabajos <span class="badge badge-secondary"><small>Jurados</small></span></h1>
                     <div class="row">
                         <div class="col-lg-12">
                              <!-- Titulo del trabajo -->
@@ -89,11 +89,16 @@ if(isset($_SESSION['usuario']))
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
-                                            <button type="button" onclick="guardar()" class="btn btn-primary mb-2">Agregar</button>
+                                            <button type="button" onclick="guardar()" class="btn btn-primary btn-icon-split mb-2">
+                                                <span class="icon text-white-50">
+                                                    <i class="fas fa-plus-circle"></i>
+                                                </span>
+                                                <span class="text">Agregar</span>
+                                            </button>
                                         </div>
                                     </div>
                                     <div class="table-responsive">
-                                        <table class="table">
+                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                             <thead>
                                                 <tr>
                                                     <th>Cedula</th>
@@ -113,7 +118,7 @@ if(isset($_SESSION['usuario']))
                                                     <td><?php echo $row2['nombres']; ?></td>
                                                     <td><?php echo $row2['apellidos']; ?></td>
                                                     <td>
-                                                        <button type="button" onclick="eliminar(<?php echo $row2['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-trash"></i></button>
+                                                        <button type="button" data-toggle="tooltip" title="eliminar" onclick="eliminar(<?php echo $row2['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-trash"></i></button>
                                                     </td>
                                                 </tr>
                                                 <?php } ?>
@@ -156,8 +161,14 @@ if(isset($_SESSION['usuario']))
     <script src="js/sweetalert2.all.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#dataTable').DataTable();
+            $('#dataTable').DataTable({
+                language:{sProcessing:"Procesando...",sLengthMenu:"Mostrar _MENU_ registros",sZeroRecords:"No se encontraron resultados",sEmptyTable:"Ningún dato disponible en esta tabla",sInfo:"Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",sInfoEmpty:"Mostrando registros del 0 al 0 de un total de 0 registros",sInfoFiltered:"(filtrado de un total de _MAX_ registros)",sInfoPostFix:"",sSearch:"Buscar:",sUrl:"",sInfoThousands:",",sLoadingRecords:"Cargando...",oPaginate:{sFirst:"Primero",sLast:"Último",sNext:"Siguiente",sPrevious:"Anterior"},oAria:{sSortAscending:": Activar para ordenar la columna de manera ascendente",sSortDescending:": Activar para ordenar la columna de manera descendente"},buttons:{print:"Imprimir"}},
+                "drawCallback": function(settings) {
+                    $('[data-toggle="tooltip"]').tooltip();
+                }
+            });
             $('.selectpicker').selectpicker();
+
         });
 
         function guardar() {
