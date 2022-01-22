@@ -68,6 +68,7 @@ if(isset($_SESSION['usuario']))
                                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                             <thead>
                                                 <tr>
+                                                    <th width="10%">Cód. Carrera</th>
                                                     <th>Cedula</th>
                                                     <th>Nombres</th>
                                                     <th>Apellidos</th>
@@ -76,10 +77,15 @@ if(isset($_SESSION['usuario']))
                                             </thead>
                                             <tbody>
                                                 <?php
-                                                $sql = $con->query("SELECT * FROM estudiantes");
+                                                $sql = $con->query("SELECT * FROM estudiantes ORDER BY cedula");
                                                 while($row = mysqli_fetch_assoc($sql)){
+                                                    $carrera_id = $row['carrera_id'];
+                                                    $sql2 = $con->query("SELECT codigo FROM carreras WHERE id = '$carrera_id'");
+                                                    $row2 = mysqli_fetch_assoc($sql2);
+                                                    $codigo = $row2['codigo'];
                                                 ?>
                                                 <tr>
+                                                    <td><?php echo $codigo; ?></td>
                                                     <td><?php echo $row['cedula']; ?></td>
                                                     <td><?php echo $row['nombres']; ?></td>
                                                     <td><?php echo $row['apellidos']; ?></td>
@@ -140,16 +146,19 @@ if(isset($_SESSION['usuario']))
             var cedula      = $('#cedula').val();
             var nombres     = $('#nombres').val();
             var apellidos   = $('#apellidos').val();
+            var carrera     = $('#carrera').val();
             if(cedula.trim() == ''){
                 msg_error('Ingresa el número de cedula');
             }else if(nombres.trim() == ''){
                 msg_error('Ingresa nombres');
             }else if(apellidos.trim() == ''){
                 msg_error('Ingresa apellidos');
+            }else if(carrera == ''){
+                msg_error('Selecciona la carrera');
             }else{
                 $.ajax({
                     data:  {
-                        cedula, nombres, apellidos
+                        cedula, nombres, apellidos, carrera
                     },
                     url:   'acciones/v_estudiantes_add.php',
                     type:  'post',
@@ -167,6 +176,7 @@ if(isset($_SESSION['usuario']))
             var cedula      = $('#cedula_edit').val();
             var nombres     = $('#nombres_edit').val();
             var apellidos   = $('#apellidos_edit').val();
+            var carrera     = $('#carrera_edit').val();
             var id          = $('#id').val();
             if(cedula.trim() == ''){
                 msg_error('Ingresa el número de cedula');
@@ -174,10 +184,12 @@ if(isset($_SESSION['usuario']))
                 msg_error('Ingresa nombres');
             }else if(apellidos.trim() == ''){
                 msg_error('Ingresa apellidos');
+            }else if(carrera == ''){
+                msg_error('Selecciona la carrera');
             }else{
                 $.ajax({
                     data:  {
-                        cedula, nombres, apellidos, id
+                        cedula, nombres, apellidos, carrera, id
                     },
                     url:   'acciones/v_estudiantes_update.php',
                     type:  'post',
@@ -203,6 +215,7 @@ if(isset($_SESSION['usuario']))
                     $('#cedula_edit').val(response.cedula);
                     $('#nombres_edit').val(response.nombres);
                     $('#apellidos_edit').val(response.apellidos);
+                    $('#carrera_edit').val(response.carrera_id);
                 },
                 error: function (error) {
                     msg_error('Ocurrio un error interno')

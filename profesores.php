@@ -31,6 +31,7 @@ if(isset($_SESSION['usuario']))
         <?php include('layouts/sidebar.php'); ?>
         <?php include('modal_profesor_add.php'); ?>
         <?php include('modal_profesor_edit.php'); ?>
+        <?php include('modal_profesor_import.php'); ?>
         <!-- End of Sidebar -->
 
         <!-- Content Wrapper -->
@@ -51,12 +52,20 @@ if(isset($_SESSION['usuario']))
                     <div class="row">
                         <div class="col-lg-12">
                         <div class="text-right my-3">
-                            <button type="button" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#addModal">
-                                <span class="icon text-white-50">
-                                    <i class="fas fa-plus-circle"></i>
-                                </span>
-                                <span class="text">Agregar</span>
-                            </button>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#addModal">
+                                    <span class="icon text-white-50">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </span>
+                                    <span class="text">Agregar</span>
+                                </button>
+                                <button type="button" class="btn btn-warning btn-icon-split" data-toggle="modal" data-target="#importModal">
+                                    <span class="icon text-white-50">
+                                        <i class="fas fa-file-upload"></i>
+                                    </span>
+                                    <span class="text">Importar</span>
+                                </button>
+                            </div>
                         </div>
                             <!-- DataTales Example -->
                             <div class="card shadow mb-4">

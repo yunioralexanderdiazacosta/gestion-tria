@@ -67,6 +67,10 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Observaciones</label>
+                    <textarea id="observaciones_edit" class="form-control" placeholder="Observaciones..." rows="3"></textarea>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>

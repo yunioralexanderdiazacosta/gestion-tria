@@ -9,8 +9,8 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Titulo</label>
-                    <textarea id="titulo" class="form-control" placeholder="Ingresa el titulo" rows="3"></textarea>
+                    <label>Tema</label>
+                    <textarea id="titulo" class="form-control" placeholder="Ingresa el tema" rows="3"></textarea>
                 </div>
                 <div class="row">
                     <div class="col-lg-6">
@@ -72,6 +72,10 @@
                             </select>
                         </div>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label>Observaciones</label>
+                    <textarea id="observaciones" class="form-control" placeholder="Observaciones..." rows="3"></textarea>
                 </div>
             </div>
             <div class="modal-footer">

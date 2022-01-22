@@ -2,19 +2,29 @@
 session_start();
 include('conexion.php');
 if (isset($_SESSION['usuario'])) {
-    $page_name = 'inicio';
+    $page_name    = 'inicio';
+    $where1       = "";
+    if(isset($_GET['carrera_id'])){
+        $get_carrera    = isset($_GET['carrera_id']) ? $_GET['carrera_id'] : "";
+        $sql_chequea    = $con->query("SELECT id FROM carreras WHERE id = '$get_carrera'");
+        if(mysqli_num_rows($sql_chequea) < 1){
+            echo "<script>window.location='index.php';</script>";
+        }else{
+            $where1 = "AND c.id= '$get_carrera'";
+        }
+    }
     $sql_periodo    = $con->query("SELECT * FROM periodos WHERE actual = 1");
     $row            = mysqli_fetch_assoc($sql_periodo);
     $periodo_id     = $row['id'];
     $periodo_actual = $row['nombre'];
 
-    $sql_count_no_entregados    = $con->query("SELECT count(id) as no_entregados FROM trabajos WHERE periodo_id = '$periodo_id' AND estatus = 0");
+    $sql_count_no_entregados    = $con->query("SELECT count(t.id) as no_entregados FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id INNER JOIN carreras c ON e.carrera_id = c.id WHERE t.periodo_id = '$periodo_id' AND t.estatus = 0 " . $where1);
     $row1                       = mysqli_fetch_assoc($sql_count_no_entregados);
     $no_entregados              = $row1['no_entregados'];
-    $sql_count_aprobados        = $con->query("SELECT count(id) as aprobados FROM trabajos WHERE periodo_id = '$periodo_id' AND estatus = 1");
+    $sql_count_aprobados        = $con->query("SELECT count(t.id) as aprobados FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id INNER JOIN carreras c ON e.carrera_id = c.id WHERE t.periodo_id = '$periodo_id' AND t.estatus = 1 " . $where1);
     $row2                       = mysqli_fetch_assoc($sql_count_aprobados);
     $aprobados                  = $row2['aprobados'];
-    $sql_count_reprobados       = $con->query("SELECT count(id) as reprobados FROM trabajos WHERE periodo_id = '$periodo_id' AND estatus = 2");
+    $sql_count_reprobados       = $con->query("SELECT count(t.id) as reprobados FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id INNER JOIN carreras c ON e.carrera_id = c.id WHERE t.periodo_id = '$periodo_id' AND t.estatus = 2 " . $where1);
     $row3                       = mysqli_fetch_assoc($sql_count_reprobados);
     $reprobados                 = $row3['reprobados'];
     $total                      = $aprobados + $no_entregados + $reprobados;
@@ -40,32 +50,32 @@ if (isset($_SESSION['usuario'])) {
         <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
         <link href="css/bootstrap-select.min.css" rel="stylesheet">
         <style>
- .avatar-sm {
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: .8333333333rem;
-}
+        .avatar-sm {
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: .8333333333rem;
+        }
 
-.avatar {
-    position: relative;
-    display: inline-block;
-    width: 3rem;
-    height: 3rem;
-    font-size: 1rem;
-}
+        .avatar {
+            position: relative;
+            display: inline-block;
+            width: 3rem;
+            height: 3rem;
+            font-size: 1rem;
+        }
 
-.avatar-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    line-height: 0;
-    background-color: #fd7e14;
-    color: #fff;
-}
+        .avatar-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            line-height: 0;
+            background-color: #fd7e14;
+            color: #fff;
+        }
 
-.avatar-group{display:inline-flex}.avatar-group .avatar+.avatar{margin-left:-.75rem}.avatar-group .avatar-xs+.avatar-xs{margin-left:-.40625rem}.avatar-group .avatar-sm+.avatar-sm{margin-left:-.625rem}.avatar-group .avatar-lg+.avatar-lg{margin-left:-1rem}.avatar-group .avatar-xl+.avatar-xl{margin-left:-1.28125rem}.avatar-group .avatar-xxl+.avatar-xxl{margin-left:-2rem}
+        .avatar-group{display:inline-flex}.avatar-group .avatar+.avatar{margin-left:-.75rem}.avatar-group .avatar-xs+.avatar-xs{margin-left:-.40625rem}.avatar-group .avatar-sm+.avatar-sm{margin-left:-.625rem}.avatar-group .avatar-lg+.avatar-lg{margin-left:-1rem}.avatar-group .avatar-xl+.avatar-xl{margin-left:-1.28125rem}.avatar-group .avatar-xxl+.avatar-xxl{margin-left:-2rem}
         </style>
     </head>
 
@@ -95,7 +105,6 @@ if (isset($_SESSION['usuario'])) {
                         <div class="d-sm-flex align-items-center justify-content-between mb-4">
                             <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-fw fa-tachometer-alt"></i> Inicio</h1>
                         </div>
-
                         <!-- Content Row -->
                         <div class="row">
                             <!-- Periodo actual -->
@@ -127,7 +136,7 @@ if (isset($_SESSION['usuario'])) {
                                                 <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total; ?></div>
                                             </div>
                                             <div class="col-auto">
-                                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                                <i class="fas fa-file-alt fa-2x text-gray-300"></i>
                                             </div>
                                         </div>
                                     </div>
@@ -161,7 +170,24 @@ if (isset($_SESSION['usuario'])) {
                                 </div>
                             </div>
                         </div>
-
+                        <div class="row">
+                            <div class="col-lg-4 offset-lg-4">
+                                <div class="form-group">
+                                    <label>Carrera</label>
+                                    <form action="index.php" method="GET">
+                                        <select class="form-control" name="carrera_id" onchange="this.form.submit()">
+                                            <option value="">Todas</option>
+                                            <?php
+                                            $sql_carrera = $con->query("SELECT * FROM carreras ORDER BY codigo");
+                                            while($row_carrera = mysqli_fetch_assoc($sql_carrera)){
+                                            ?>
+                                                <option value="<?php echo $row_carrera['id'] ?>" <?php if(isset($_GET['carrera_id']) && $row_carrera['id'] == $_GET['carrera_id']) echo 'selected'; ?>><?php echo $row_carrera['codigo']; ?> - <?php echo $row_carrera['nombre']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-lg-12">
                                 <nav>
@@ -193,6 +219,7 @@ if (isset($_SESSION['usuario'])) {
                                                                 <thead>
                                                                     <tr>
                                                                         <th>Titulo</th>
+                                                                        <th width="9%">Cód Carrera</th>
                                                                         <th>Estudiante</th>
                                                                         <th>Estatus</th>
                                                                         <th>F. Entrega</th>
@@ -202,20 +229,22 @@ if (isset($_SESSION['usuario'])) {
                                                                 </thead>
                                                                 <tbody>
                                                                     <?php
-                                                                    $sql = $con->query("SELECT * FROM trabajos WHERE periodo_id = '$periodo_id'");
+                                                                    $sql = $con->query("SELECT t.id, t.titulo, t.fecha_entrega, t.estatus, e.cedula, e.nombres, e.apellidos, e.carrera_id FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id INNER JOIN carreras c ON e.carrera_id = c.id WHERE t.periodo_id = '$periodo_id' ". $where1);
                                                                     while($row4 = mysqli_fetch_assoc($sql)){
-                                                                        $id             = $row4['id'];
-                                                                        $titulo         = $row4['titulo'];
-                                                                        $estudiante_id  = $row4['estudiante_id'];
-                                                                        $fecha_entrega  = $row4['fecha_entrega'];
-                                                                        $sql2                   = $con->query("SELECT cedula, nombres, apellidos FROM estudiantes WHERE id = $estudiante_id");
-                                                                        $row5                   = mysqli_fetch_assoc($sql2);
-                                                                        $estudiante_cedula      = $row5['cedula'];
-                                                                        $estudiante_nombres     = $row5['nombres'];
-                                                                        $estudiante_apellidos   = $row5['apellidos'];
+                                                                        $id                     = $row4['id'];
+                                                                        $titulo                 = $row4['titulo'];
+                                                                        $fecha_entrega          = $row4['fecha_entrega'];
+                                                                        $estudiante_cedula      = $row4['cedula'];
+                                                                        $estudiante_nombres     = $row4['nombres'];
+                                                                        $estudiante_apellidos   = $row4['apellidos'];
+                                                                        $carrera_id             = $row4['carrera_id'];
+                                                                        $sql6 = $con->query("SELECT codigo FROM carreras WHERE id = '$carrera_id'");
+                                                                        $row6 = mysqli_fetch_assoc($sql6);
+                                                                        $codigo = $row6['codigo'];
                                                                     ?>
                                                                     <tr>
                                                                         <td><?php echo $titulo; ?></td>
+                                                                        <td><?php echo $codigo; ?></td>
                                                                         <td><?php echo $estudiante_cedula; ?> - <?php echo  $estudiante_nombres; ?> <?php echo $estudiante_apellidos; ?></php></td>
                                                                         <td>
                                                                             <?php if($row4['estatus'] == 0){ ?>
@@ -248,6 +277,8 @@ if (isset($_SESSION['usuario'])) {
                                                                         </td>
                                                                         <td>
                                                                             <div class="btn-group">
+                                                                                <a href="detalles_trabajo.php?id=<?php echo $id; ?>" data-toggle="tooltip" title="detalles" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                                                                                <a href="trabajos_jurados.php?id=<?php echo $id; ?>" data-toggle="tooltip" title="jurados" class="btn btn-sm btn-outline-primary"><i class="fas fa-users"></i></a>
                                                                                 <button type="button" data-toggle="tooltip" title="editar" onclick="editar(<?php echo $row4['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></i></button>
                                                                                 <button type="button" onclick="eliminar(<?php echo $row4['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-trash"></i></i></button>
                                                                             </div>

@@ -106,6 +106,7 @@ if(isset($_SESSION['usuario']))
                                                     </td>
                                                     <td>
                                                         <div class="btn-group">
+                                                            <a href="detalles_trabajo.php?id=<?php echo $row['id']; ?>" data-toggle="tooltip" title="detalles" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
                                                             <a href="trabajos_jurados.php?id=<?php echo $row['id']; ?>" data-toggle="tooltip" title="jurados" class="btn btn-sm btn-outline-primary"><i class="fas fa-users"></i></a>
                                                             <button type="button" data-toggle="tooltip" title="editar" onclick="editar(<?php echo $row['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></i></button>
                                                             <button type="button" data-toggle="tooltip" title="eliminar" onclick="eliminar(<?php echo $row['id']; ?>)" class="btn btn-sm btn-outline-primary"><i class="fas fa-trash"></i></i></button>
@@ -170,7 +171,8 @@ if(isset($_SESSION['usuario']))
             var estudiante_id   = $('#estudiante_id').val();
             var profesor_id     = $('#profesor_id').val();
             var fecha_entrega   = $('#fecha_entrega').val();
-            var estatus         = $('#estatus').val()
+            var estatus         = $('#estatus').val();
+            var observaciones   = $('#observaciones').val();
             if(titulo.trim() == ''){
                 msg_error('Ingresa el titulo');
             }else if(empresa.trim() == ''){
@@ -188,7 +190,8 @@ if(isset($_SESSION['usuario']))
                     periodo_id:     periodo_id,
                     estudiante_id:  estudiante_id,
                     profesor_id: profesor_id,
-                    estatus: estatus
+                    estatus: estatus,
+                    observaciones: observaciones
                 };
                 if(fecha_entrega != ""){
                     data.fecha_entrega = fecha_entrega;
@@ -214,7 +217,8 @@ if(isset($_SESSION['usuario']))
             var estudiante_id   = $('#estudiante_id_edit').val();
             var profesor_id     = $('#profesor_id_edit').val();
             var fecha_entrega   = $('#fecha_entrega_edit').val();
-            var estatus         = $('#estatus_edit').val()
+            var estatus         = $('#estatus_edit').val();
+            var observaciones   = $('#observaciones_edit').val();
             if(titulo.trim() == ''){
                 msg_error('Ingresa el titulo');
             }else if(empresa.trim() == ''){
@@ -232,7 +236,8 @@ if(isset($_SESSION['usuario']))
                     periodo_id:     periodo_id,
                     estudiante_id:  estudiante_id,
                     profesor_id: profesor_id,
-                    estatus: estatus
+                    estatus: estatus,
+                    observaciones: observaciones
                 };
                 if(fecha_entrega != ""){
                     data.fecha_entrega = fecha_entrega;

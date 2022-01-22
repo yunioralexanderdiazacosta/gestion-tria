@@ -5,7 +5,7 @@ if(isset($_SESSION['usuario']))
 {
     $page_name      = 'trabajos';
     $trabajo_id     = $_GET['id'];
-    $sql_trabajo    = $con->query("SELECT profesor_id, titulo FROM trabajos WHERE id = $trabajo_id");
+    $sql_trabajo    = $con->query("SELECT t.profesor_id, t.titulo, e.cedula, e.nombres, e.apellidos FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id WHERE t.id = $trabajo_id");
     $row1           = mysqli_fetch_assoc($sql_trabajo);
     $profesor_id    = $row1['profesor_id'];
     $titulo_trabajo = $row1['titulo'];
@@ -51,20 +51,36 @@ if(isset($_SESSION['usuario']))
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-5 text-gray-800"><i class="fas fa-fw fa-users"></i> Trabajos <span class="badge badge-secondary"><small>Jurados</small></span></h1>
+                    <h1 class="h3 text-gray-800"><i class="fas fa-fw fa-book"></i> Trabajos <span class="badge badge-secondary"><small>Jurados</small></span></h1>
                     <div class="row">
                         <div class="col-lg-12">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="index.php">Inicio</a></li>
+                                    <li class="breadcrumb-item"><a href="trabajos.php">Trabajos</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Jurados</li>
+                                </ol>
+                            </nav>
                              <!-- Titulo del trabajo -->
-                             <div class="card shadow mb-4">
+                             <div class="card shadow my-3">
                                 <!-- Card Header - Accordion -->
                                 <a href="#collapseCardExample" class="d-block card-header py-3" data-toggle="collapse"
                                     role="button" aria-expanded="true" aria-controls="collapseCardExample">
-                                    <h6 class="m-0 font-weight-bold text-primary">Titulo del trabajo</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Detalles</h6>
                                 </a>
                                 <!-- Card Content - Collapse -->
                                 <div class="collapse show" id="collapseCardExample">
                                     <div class="card-body">
-                                        <?php echo $titulo_trabajo; ?>
+                                        <table class="table">
+                                            <tr>
+                                                <th width="10%">Tema</th>
+                                                <td><?php echo $titulo_trabajo; ?></td>
+                                            </tr>
+                                            <tr>
+                                                <th width="10%">Estudiante</th>
+                                                <td><?php echo $row1['cedula']; ?> - <?php echo $row1['nombres'] . " " . $row1['apellidos']; ?></td>
+                                            </tr>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
