@@ -1,3 +1,4 @@
+<?php $sql_count_periodos = $con->query("SELECT id FROM periodos"); ?>
 <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -14,7 +15,7 @@
                 </div>
 
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="actual" id="actual">
+                    <input class="form-check-input" type="checkbox" value="actual" id="actual" <?php if(mysqli_num_rows($sql_count_periodos) < 1){ ?> onclick="return false;" checked <?php } ?>>
                     <label class="form-check-label" for="actual">
                         Actual
                     </label>

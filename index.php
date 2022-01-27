@@ -13,24 +13,25 @@ if (isset($_SESSION['usuario'])) {
             $where1 = "AND c.id= '$get_carrera'";
         }
     }
-    $sql_periodo    = $con->query("SELECT * FROM periodos WHERE actual = 1");
-    $row            = mysqli_fetch_assoc($sql_periodo);
-    $periodo_id     = $row['id'];
-    $periodo_actual = $row['nombre'];
-
-    $sql_count_no_entregados    = $con->query("SELECT count(t.id) as no_entregados FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id INNER JOIN carreras c ON e.carrera_id = c.id WHERE t.periodo_id = '$periodo_id' AND t.estatus = 0 " . $where1);
-    $row1                       = mysqli_fetch_assoc($sql_count_no_entregados);
-    $no_entregados              = $row1['no_entregados'];
-    $sql_count_aprobados        = $con->query("SELECT count(t.id) as aprobados FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id INNER JOIN carreras c ON e.carrera_id = c.id WHERE t.periodo_id = '$periodo_id' AND t.estatus = 1 " . $where1);
-    $row2                       = mysqli_fetch_assoc($sql_count_aprobados);
-    $aprobados                  = $row2['aprobados'];
-    $sql_count_reprobados       = $con->query("SELECT count(t.id) as reprobados FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id INNER JOIN carreras c ON e.carrera_id = c.id WHERE t.periodo_id = '$periodo_id' AND t.estatus = 2 " . $where1);
-    $row3                       = mysqli_fetch_assoc($sql_count_reprobados);
-    $reprobados                 = $row3['reprobados'];
-    $total                      = $aprobados + $no_entregados + $reprobados;
-
-    $entregados                 = $aprobados + $reprobados;
-    $porcentaje                 = $total > 0 ? round($entregados / $total) * 100 : 0;
+    $count_periodos = $con->query("SELECT id FROM periodos LIMIT 1");
+    if(mysqli_num_rows($count_periodos) > 0){
+        $sql_periodo    = $con->query("SELECT * FROM periodos WHERE actual = 1");
+        $row            = mysqli_fetch_assoc($sql_periodo);
+        $periodo_id     = $row['id'];
+        $periodo_actual = $row['nombre'];
+        $sql_count_no_entregados    = $con->query("SELECT count(t.id) as no_entregados FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id INNER JOIN carreras c ON e.carrera_id = c.id WHERE t.periodo_id = '$periodo_id' AND t.estatus = 0 " . $where1);
+        $row1                       = mysqli_fetch_assoc($sql_count_no_entregados);
+        $no_entregados              = $row1['no_entregados'];
+        $sql_count_aprobados        = $con->query("SELECT count(t.id) as aprobados FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id INNER JOIN carreras c ON e.carrera_id = c.id WHERE t.periodo_id = '$periodo_id' AND t.estatus = 1 " . $where1);
+        $row2                       = mysqli_fetch_assoc($sql_count_aprobados);
+        $aprobados                  = $row2['aprobados'];
+        $sql_count_reprobados       = $con->query("SELECT count(t.id) as reprobados FROM trabajos t INNER JOIN estudiantes e ON t.estudiante_id = e.id INNER JOIN carreras c ON e.carrera_id = c.id WHERE t.periodo_id = '$periodo_id' AND t.estatus = 2 " . $where1);
+        $row3                       = mysqli_fetch_assoc($sql_count_reprobados);
+        $reprobados                 = $row3['reprobados'];
+        $total                      = $aprobados + $no_entregados + $reprobados;
+        $entregados                 = $aprobados + $reprobados;
+        $porcentaje                 = $total > 0 ? round($entregados / $total) * 100 : 0;
+    }
 ?>
     <!DOCTYPE html>
     <html lang="es">
@@ -100,12 +101,18 @@ if (isset($_SESSION['usuario'])) {
 
                     <!-- Begin Page Content -->
                     <div class="container-fluid">
-
                         <!-- Page Heading -->
                         <div class="d-sm-flex align-items-center justify-content-between mb-4">
                             <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-fw fa-tachometer-alt"></i> Inicio</h1>
                         </div>
                         <!-- Content Row -->
+                        <?php if(mysqli_num_rows($count_periodos) < 1){ ?>
+                        <div class="row">
+                            <div class="col-xl-12 col-md-12">
+                                <div class="alert alert-info"><i class="fas fa-info-circle"></i> No se ha agregado ningún periodo</div>
+                            </div>
+                        </div>
+                        <?php }else{ ?>
                         <div class="row">
                             <!-- Periodo actual -->
                             <div class="col-xl-4 col-md-6 mb-4">
@@ -248,7 +255,7 @@ if (isset($_SESSION['usuario'])) {
                                                                         <td><?php echo $estudiante_cedula; ?> - <?php echo  $estudiante_nombres; ?> <?php echo $estudiante_apellidos; ?></php></td>
                                                                         <td>
                                                                             <?php if($row4['estatus'] == 0){ ?>
-                                                                                <span class="badge badge-light">No entregado</span>
+                                                                                <span class="badge badge-warning">No entregado</span>
                                                                             <?php }else if($row4['estatus'] == 1){ ?>
                                                                                 <span class="badge badge-success">Aprobado</span>
                                                                             <?php }else if($row4['estatus'] == 2){ ?>
@@ -316,6 +323,7 @@ if (isset($_SESSION['usuario'])) {
                                 </div>
                             </div>
                         </div>
+                        <?php } ?>
                     </div>
                     <!-- /.container-fluid -->
                 </div>

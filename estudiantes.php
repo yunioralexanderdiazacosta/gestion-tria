@@ -72,12 +72,13 @@ if(isset($_SESSION['usuario']))
                                                     <th>Cedula</th>
                                                     <th>Nombres</th>
                                                     <th>Apellidos</th>
+                                                    <th>Estatus</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php
-                                                $sql = $con->query("SELECT * FROM estudiantes ORDER BY cedula");
+                                                $sql = $con->query("SELECT * FROM estudiantes ORDER BY estatus DESC, cedula ASC");
                                                 while($row = mysqli_fetch_assoc($sql)){
                                                     $carrera_id = $row['carrera_id'];
                                                     $sql2 = $con->query("SELECT codigo FROM carreras WHERE id = '$carrera_id'");
@@ -90,9 +91,20 @@ if(isset($_SESSION['usuario']))
                                                     <td><?php echo $row['nombres']; ?></td>
                                                     <td><?php echo $row['apellidos']; ?></td>
                                                     <td>
+                                                        <?php if($row['estatus'] == 1){ ?>
+                                                            <span class="badge badge-success">Activo</span>
+                                                        <?php }else{ ?>
+                                                            <span class="badge badge-danger">Desactivado</span>
+                                                        <?php } ?>
+                                                    </td>
+                                                    <td>
                                                         <div class="btn-group">
                                                             <button type="button" data-toggle="tooltip" title="editar" onclick="editar(<?php echo $row['id']; ?>)" class="btn btn-circle btn-outline-primary"><i class="fas fa-edit"></i></i></button>
-                                                            <button type="button" data-toggle="tooltip" title="eliminar" onclick="eliminar(<?php echo $row['id']; ?>)" class="btn btn-circle btn-outline-primary"><i class="fas fa-trash"></i></i></button>
+                                                            <?php if($row['estatus'] == 1){ ?>
+                                                                <button type="button" data-toggle="tooltip" title="eliminar" onclick="eliminar(<?php echo $row['id']; ?>)" class="btn btn-circle btn-outline-primary"><i class="fas fa-trash"></i></i></button>
+                                                            <?php }else{ ?>
+                                                                <button type="button" data-toggle="tooltip" title="activar" onclick="activar(<?php echo $row['id']; ?>)" class="btn btn-circle btn-outline-primary"><i class="fas fa-check-circle"></i></i></button>
+                                                            <?php } ?>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -135,6 +147,7 @@ if(isset($_SESSION['usuario']))
     <script>
         $(document).ready(function() {
             $('#dataTable').DataTable({
+                "ordering": false,
                 language:{sProcessing:"Procesando...",sLengthMenu:"Mostrar _MENU_ registros",sZeroRecords:"No se encontraron resultados",sEmptyTable:"Ningún dato disponible en esta tabla",sInfo:"Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",sInfoEmpty:"Mostrando registros del 0 al 0 de un total de 0 registros",sInfoFiltered:"(filtrado de un total de _MAX_ registros)",sInfoPostFix:"",sSearch:"Buscar:",sUrl:"",sInfoThousands:",",sLoadingRecords:"Cargando...",oPaginate:{sFirst:"Primero",sLast:"Último",sNext:"Siguiente",sPrevious:"Anterior"},oAria:{sSortAscending:": Activar para ordenar la columna de manera ascendente",sSortDescending:": Activar para ordenar la columna de manera descendente"},buttons:{print:"Imprimir"}},
                 "drawCallback": function(settings) {
                     $('[data-toggle="tooltip"]').tooltip();
@@ -227,7 +240,7 @@ if(isset($_SESSION['usuario']))
         {
             Swal.fire({
                 title: '¿Esta seguro de que desea eliminar el estudiante?',
-                text: "¡No podrás revertir esto!",
+                text: "¡Esta acción eliminará o dará de baja el estudiante!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -244,6 +257,36 @@ if(isset($_SESSION['usuario']))
                         type:  'post',
                         success:  function (response) {
                             msg_success('Registro eliminado correctamente')
+                        },
+                        error: function (error) {
+                            msg_error('Ocurrio un error interno')
+                        }
+                    });
+                }
+            });
+        }
+
+        function activar(id)
+        {
+            Swal.fire({
+                title: '¿Esta seguro de que desea activar el estudiante?',
+                text: "¡Esta acción dará de alta al estudiante!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Confirmar'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        data:  {
+                            id
+                        },
+                        url:   'acciones/v_estudiantes_activate.php',
+                        type:  'post',
+                        success:  function (response) {
+                            msg_success('Registro activado correctamente')
                         },
                         error: function (error) {
                             msg_error('Ocurrio un error interno')

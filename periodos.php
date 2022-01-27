@@ -141,7 +141,11 @@ if(isset($_SESSION['usuario']))
 
         $('#guardar').click(function () {
             var nombre = $('#nombre').val();
-            var actual = $('#actual').val();
+            if($('#actual').prop('checked')) {
+                var actual = 'actual';
+            }else{
+                var actual = 'noesactual';
+            }
             if(nombre.trim() == ''){
                 msg_error('Ingresa el nombre');
             }else{
@@ -162,9 +166,13 @@ if(isset($_SESSION['usuario']))
         });
 
         $('#actualizar').click(function () {
-            var nombre  = $('#nombre_edit').val();
-            var actual  = $('#actual_edit').val();
-            var id      = $('#id').val();
+            var nombre = $('#nombre_edit').val();
+            if($('#actual_edit').prop('checked')) {
+                var actual = 'actual';
+            }else{
+                var actual = 'noesactual';
+            }
+            var id = $('#id').val();
             if(nombre.trim() == ''){
                 msg_error('Ingresa el nombre');
             }else{
@@ -196,8 +204,10 @@ if(isset($_SESSION['usuario']))
                     $('#nombre_edit').val(response.nombre);
                     if(response.actual == "1"){
                         $('#actual_edit').prop('checked', true);
+                        $('#actual_edit').prop('disabled', true);
                     }else{
                         $('#actual_edit').prop('checked', false);
+                        $('#actual_edit').prop('disabled', false);
                     }
                 },
                 error: function (error) {

@@ -2,7 +2,7 @@
 include("../conexion.php");
 $estudiante_id = $_POST['estudiante_id'];
 $periodo_id = $_POST['periodo_id'];
-$sql_estudiantes = $con->query("SELECT * FROM estudiantes WHERE id NOT IN (SELECT e.id FROM estudiantes e INNER JOIN trabajos t ON e.id = t.estudiante_id WHERE (t.estatus = 1 OR t.estatus = 0) OR (t.estatus = 2 AND t.periodo_id = '$periodo_id')) OR id = '$estudiante_id' ORDER BY nombres ASC, apellidos ASC")
+$sql_estudiantes = $con->query("SELECT * FROM estudiantes WHERE id NOT IN (SELECT e.id FROM estudiantes e INNER JOIN trabajos t ON e.id = t.estudiante_id WHERE (t.estatus = 1 OR t.estatus = 0) OR (t.estatus = 2 AND t.periodo_id = '$periodo_id') OR e.estatus = 0) OR id = '$estudiante_id' ORDER BY nombres ASC, apellidos ASC")
 ?>
 <option value="">Seleccione</option>
 <?php

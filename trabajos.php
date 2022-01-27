@@ -97,7 +97,7 @@ if(isset($_SESSION['usuario']))
                                                     <td><?php echo $estudiante_cedula; ?> - <?php echo  $estudiante_nombres; ?> <?php echo $estudiante_apellidos; ?></php></td>
                                                     <td>
                                                         <?php if($row['estatus'] == 0){ ?>
-                                                            <span class="badge badge-light">No entregado</span>
+                                                            <span class="badge badge-warning">No entregado</span>
                                                         <?php }else if($row['estatus'] == 1){ ?>
                                                             <span class="badge badge-success">Aprobado</span>
                                                         <?php }else if($row['estatus'] == 2){ ?>
@@ -219,6 +219,7 @@ if(isset($_SESSION['usuario']))
             var fecha_entrega   = $('#fecha_entrega_edit').val();
             var estatus         = $('#estatus_edit').val();
             var observaciones   = $('#observaciones_edit').val();
+            var id              = $('#id_edit').val();
             if(titulo.trim() == ''){
                 msg_error('Ingresa el titulo');
             }else if(empresa.trim() == ''){
@@ -237,7 +238,8 @@ if(isset($_SESSION['usuario']))
                     estudiante_id:  estudiante_id,
                     profesor_id: profesor_id,
                     estatus: estatus,
-                    observaciones: observaciones
+                    observaciones: observaciones,
+                    id: id
                 };
                 if(fecha_entrega != ""){
                     data.fecha_entrega = fecha_entrega;
@@ -266,7 +268,7 @@ if(isset($_SESSION['usuario']))
                     $('#editModal').modal('show');
                     obtener_estudiantes_editar(response.estudiante_id, response.periodo_id);
                     obtener_profesores_editar(response.id, response.profesor_id);
-                    $('#id').val(response.id);
+                    $('#id_edit').val(response.id);
                     $('#titulo_edit').val(response.titulo);
                     $('#empresa_edit').val(response.empresa);
                     $('#periodo_id_edit').val(response.periodo_id);
