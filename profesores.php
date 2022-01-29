@@ -59,7 +59,7 @@ if(isset($_SESSION['usuario']))
                                     </span>
                                     <span class="text">Agregar</span>
                                 </button>
-                                <button type="button" class="btn btn-warning btn-icon-split" data-toggle="modal" data-target="#importModal">
+                                <button type="button" class="btn btn-secondary btn-icon-split" data-toggle="modal" data-target="#importModal">
                                     <span class="icon text-white-50">
                                         <i class="fas fa-file-upload"></i>
                                     </span>
@@ -147,6 +147,8 @@ if(isset($_SESSION['usuario']))
     <script src="vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
     <script src="js/sweetalert2.all.min.js"></script>
+    <script type="text/javascript" src="js/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="js/jszip.js"></script>
     <script>
         $(document).ready(function() {
             $('#dataTable').DataTable({
@@ -157,7 +159,8 @@ if(isset($_SESSION['usuario']))
                 }
             });
         });
-
+        var encontrado = '0';
+        var encontrado_edit = '0';
         $('#guardar').click(function () {
             var cedula      = $('#cedula').val();
             var nombres     = $('#nombres').val();
@@ -197,21 +200,61 @@ if(isset($_SESSION['usuario']))
             }else if(apellidos.trim() == ''){
                 msg_error('Ingresa apellidos');
             }else{
-                $.ajax({
-                    data:  {
-                        cedula, nombres, apellidos, id
-                    },
-                    url:   'acciones/v_profesores_update.php',
-                    type:  'post',
-                    success:  function (response) {
-                        msg_success('Registro actualizado correctamente')
-                    },
-                    error: function (error) {
-                        msg_error('Ocurrio un error interno')
-                    }
-                });
+                validate_edit(cedula);
+                if(encontrado_edit != '1'){
+                    $.ajax({
+                        data:  {
+                            cedula, nombres, apellidos, id
+                        },
+                        url:   'acciones/v_profesores_update.php',
+                        type:  'post',
+                        success:  function (response) {
+                            msg_success('Registro actualizado correctamente')
+                        },
+                        error: function (error) {
+                            msg_error('Ocurrio un error interno')
+                        }
+                    });
+                }
             }
         });
+
+        function validate(cedula)
+        {
+            $.ajax({
+                data: { cedula },
+                url:    'acciones/v_cedula_profesor.php',
+                type:   'post',
+                success:  function (response) {
+                    encontrado = response;
+                    if(encontrado == '1'){
+                        msg_error('El número de cedula ya se encuentra registrado')
+                    }
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
+        }
+
+        function validate_edit(cedula)
+        {
+            var actual = $('#actual').val();
+            $.ajax({
+                data: { cedula, actual },
+                url:    'acciones/v_cedula_profesor_2.php',
+                type:   'post',
+                success:  function (response) {
+                    encontrado_edit = response;
+                    if(encontrado_edit == '1'){
+                        msg_error('El número de cedula ya se encuentra registrado')
+                    }
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
+        }
 
         function editar(id)
         {
@@ -292,6 +335,67 @@ if(isset($_SESSION['usuario']))
             });
         }
 
+        function importar()
+        {
+            Swal.fire({
+                title: 'Procesando',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                background: '#19191a',
+                showConfirmButton: false,
+                onOpen: ()=>{
+                    Swal.showLoading();
+                }
+            });
+            var fileUpload = document.getElementById("import_profesores");
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+            if (regex.test(fileUpload.value.toLowerCase())) {
+                if (typeof (FileReader) != "undefined") {
+                    var reader = new FileReader();
+                    if (reader.readAsBinaryString) {
+                        reader.onload = function (e) {
+                            GetTableFromExcel(e.target.result);
+                        };
+                        reader.readAsBinaryString(fileUpload.files[0]);
+                    } else {
+                        reader.onload = function (e) {
+                            var data = "";
+                            var bytes = new Uint8Array(e.target.result);
+                            for (var i = 0; i < bytes.byteLength; i++) {
+                                data += String.fromCharCode(bytes[i]);
+                            }
+                            GetTableFromExcel(data);
+                        };
+                        reader.readAsArrayBuffer(fileUpload.files[0]);
+                    }
+                } else {
+                    alert("This browser does not support HTML5.");
+                }
+            } else {
+                alert("Please upload a valid Excel file.");
+            }
+        }
+
+        function GetTableFromExcel(data)
+        {
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+            var Sheet = workbook.SheetNames[0];
+            var profesores = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[Sheet]);
+            $.ajax({
+                data:  { profesores: JSON.stringify(profesores) },
+                url:   'acciones/v_profesores_import.php',
+                type:  'post',
+                success:  function (response) {
+                    swal.close();
+                    msg_success('Importación realizada correctamente')
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
+        }
 
         function msg_error(title)
         {

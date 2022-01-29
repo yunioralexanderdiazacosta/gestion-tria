@@ -96,7 +96,7 @@ if(isset($_SESSION['usuario']))
                                                 <select class="form-control selectpicker" id="profesor_id" data-live-search="true">
                                                     <option value="">Seleccione</option>
                                                     <?php
-                                                    $sql_profesores = $con->query("SELECT * FROM profesores WHERE id NOT IN (SELECT profesor_id FROM trabajos WHERE profesor_id = '$profesor_id') AND id NOT IN (SELECT profesor_id FROM trabajos_jurados WHERE trabajo_id = '$trabajo_id') ORDER BY nombres ASC, apellidos ASC");
+                                                    $sql_profesores = $con->query("SELECT * FROM profesores WHERE id NOT IN (SELECT profesor_id FROM trabajos WHERE profesor_id = '$profesor_id') AND id NOT IN (SELECT profesor_id FROM trabajos_jurados WHERE trabajo_id = '$trabajo_id') AND estatus = 1 ORDER BY nombres ASC, apellidos ASC");
                                                     while($row = mysqli_fetch_assoc($sql_profesores)){
                                                     ?>
                                                     <option value="<?php echo $row['id']; ?>"><?php echo $row['cedula']; ?> - <?php echo $row['nombres']; ?> <?php echo $row['apellidos']; ?></option>

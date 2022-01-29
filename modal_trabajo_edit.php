@@ -2,12 +2,13 @@
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Agregar trabajo</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Editar trabajo</h5>
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
             <div class="modal-body">
+                <input type="hidden" id="id_edit">
                 <div class="form-group">
                     <label>Titulo</label>
                     <textarea id="titulo_edit" class="form-control" placeholder="Ingresa el titulo" rows="3"></textarea>

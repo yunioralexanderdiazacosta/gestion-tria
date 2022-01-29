@@ -232,14 +232,14 @@ if(isset($_SESSION['usuario']))
                 msg_error('Seleccione el asesor');
             }else{
                 var data = {
-                    titulo:     titulo,
-                    empresa:    empresa,
+                    id: id,
+                    titulo:         titulo,
+                    empresa:        empresa,
                     periodo_id:     periodo_id,
                     estudiante_id:  estudiante_id,
-                    profesor_id: profesor_id,
-                    estatus: estatus,
-                    observaciones: observaciones,
-                    id: id
+                    profesor_id:    profesor_id,
+                    estatus:        estatus,
+                    observaciones:  observaciones
                 };
                 if(fecha_entrega != ""){
                     data.fecha_entrega = fecha_entrega;
@@ -385,7 +385,7 @@ if(isset($_SESSION['usuario']))
                 showConfirmButton: false,
                 timer: 1000
             }).then(function(){
-                window.location = 'trabajos.php';
+                //window.location = 'trabajos.php';
             })
         }
     </script>

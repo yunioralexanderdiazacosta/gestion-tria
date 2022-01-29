@@ -9,9 +9,10 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="id">
+                <input type="hidden" id="actual">
                 <div class="form-group">
                     <label>Nº de Cédula</label>
-                    <input type="number" class="form-control" id="cedula_edit">
+                    <input type="number" class="form-control" id="cedula_edit" onchange="validate_edit(this.value)">
                 </div>
                 <div class="form-group">
                     <label>Nombres</label>

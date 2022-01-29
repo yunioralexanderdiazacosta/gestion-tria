@@ -31,6 +31,7 @@ if(isset($_SESSION['usuario']))
         <?php include('layouts/sidebar.php'); ?>
         <?php include('modal_estudiante_add.php'); ?>
         <?php include('modal_estudiante_edit.php'); ?>
+        <?php include('modal_estudiante_import.php'); ?>
         <!-- End of Sidebar -->
 
         <!-- Content Wrapper -->
@@ -51,12 +52,20 @@ if(isset($_SESSION['usuario']))
                     <div class="row">
                         <div class="col-lg-12">
                         <div class="text-right my-3">
-                            <button type="button" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#addModal">
-                                <span class="icon text-white-50">
-                                    <i class="fas fa-plus-circle"></i>
-                                </span>
-                                <span class="text">Agregar</span>
-                            </button>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#addModal">
+                                    <span class="icon text-white-50">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </span>
+                                    <span class="text">Agregar</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-icon-split" data-toggle="modal" data-target="#importModal">
+                                    <span class="icon text-white-50">
+                                        <i class="fas fa-file-upload"></i>
+                                    </span>
+                                    <span class="text">Importar</span>
+                                </button>
+                            </div>
                         </div>
                             <!-- DataTales Example -->
                             <div class="card shadow mb-4">
@@ -144,16 +153,20 @@ if(isset($_SESSION['usuario']))
     <script src="vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
     <script src="js/sweetalert2.all.min.js"></script>
+    <script type="text/javascript" src="js/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="js/jszip.js"></script>
     <script>
         $(document).ready(function() {
-            $('#dataTable').DataTable({
+            var table = $('#dataTable').DataTable({
                 "ordering": false,
                 language:{sProcessing:"Procesando...",sLengthMenu:"Mostrar _MENU_ registros",sZeroRecords:"No se encontraron resultados",sEmptyTable:"Ningún dato disponible en esta tabla",sInfo:"Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",sInfoEmpty:"Mostrando registros del 0 al 0 de un total de 0 registros",sInfoFiltered:"(filtrado de un total de _MAX_ registros)",sInfoPostFix:"",sSearch:"Buscar:",sUrl:"",sInfoThousands:",",sLoadingRecords:"Cargando...",oPaginate:{sFirst:"Primero",sLast:"Último",sNext:"Siguiente",sPrevious:"Anterior"},oAria:{sSortAscending:": Activar para ordenar la columna de manera ascendente",sSortDescending:": Activar para ordenar la columna de manera descendente"},buttons:{print:"Imprimir"}},
                 "drawCallback": function(settings) {
                     $('[data-toggle="tooltip"]').tooltip();
-                }
+                },
             });
         });
+        var encontrado = '0';
+        var encontrado_edit = '0';
 
         $('#guardar').click(function () {
             var cedula      = $('#cedula').val();
@@ -161,7 +174,7 @@ if(isset($_SESSION['usuario']))
             var apellidos   = $('#apellidos').val();
             var carrera     = $('#carrera').val();
             if(cedula.trim() == ''){
-                msg_error('Ingresa el número de cedula');
+                msg_error('Ingresa el número de cédula');
             }else if(nombres.trim() == ''){
                 msg_error('Ingresa nombres');
             }else if(apellidos.trim() == ''){
@@ -169,19 +182,23 @@ if(isset($_SESSION['usuario']))
             }else if(carrera == ''){
                 msg_error('Selecciona la carrera');
             }else{
-                $.ajax({
-                    data:  {
-                        cedula, nombres, apellidos, carrera
-                    },
-                    url:   'acciones/v_estudiantes_add.php',
-                    type:  'post',
-                    success:  function (response) {
-                        msg_success('Registro almacenado correctamente')
-                    },
-                    error: function (error) {
-                        msg_error('Ocurrio un error interno')
-                    }
-                });
+                if(encontrado == '1'){
+                    msg_error('El número de cédula ya existe')
+                }else{
+                    $.ajax({
+                        data:  {
+                            cedula, nombres, apellidos, carrera
+                        },
+                        url:   'acciones/v_estudiantes_add.php',
+                        type:  'post',
+                        success:  function (response) {
+                            msg_success('Registro almacenado correctamente')
+                        },
+                        error: function (error) {
+                            msg_error('Ocurrio un error interno')
+                        }
+                    });
+                }
             }
         });
 
@@ -192,7 +209,7 @@ if(isset($_SESSION['usuario']))
             var carrera     = $('#carrera_edit').val();
             var id          = $('#id').val();
             if(cedula.trim() == ''){
-                msg_error('Ingresa el número de cedula');
+                msg_error('Ingresa el número de cédula');
             }else if(nombres.trim() == ''){
                 msg_error('Ingresa nombres');
             }else if(apellidos.trim() == ''){
@@ -200,21 +217,61 @@ if(isset($_SESSION['usuario']))
             }else if(carrera == ''){
                 msg_error('Selecciona la carrera');
             }else{
-                $.ajax({
-                    data:  {
-                        cedula, nombres, apellidos, carrera, id
-                    },
-                    url:   'acciones/v_estudiantes_update.php',
-                    type:  'post',
-                    success:  function (response) {
-                        msg_success('Registro actualizado correctamente')
-                    },
-                    error: function (error) {
-                        msg_error('Ocurrio un error interno')
-                    }
-                });
+                validate_edit(cedula)
+                if(encontrado_edit != '1'){
+                    $.ajax({
+                        data:  {
+                            cedula, nombres, apellidos, carrera, id
+                        },
+                        url:   'acciones/v_estudiantes_update.php',
+                        type:  'post',
+                        success:  function (response) {
+                            msg_success('Registro actualizado correctamente')
+                        },
+                        error: function (error) {
+                            msg_error('Ocurrio un error interno')
+                        }
+                    });
+                }
             }
         });
+
+        function validate(cedula)
+        {
+            $.ajax({
+                data: { cedula },
+                url:    'acciones/v_cedula_estudiante.php',
+                type:   'post',
+                success:  function (response) {
+                    encontrado = response;
+                    if(encontrado == '1'){
+                        msg_error('El número de cedula ya se encuentra registrado')
+                    }
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
+        }
+
+        function validate_edit(cedula)
+        {
+            var actual = $('#actual').val();
+            $.ajax({
+                data: { cedula, actual },
+                url:    'acciones/v_cedula_estudiante_2.php',
+                type:   'post',
+                success:  function (response) {
+                    encontrado_edit = response;
+                    if(encontrado_edit == '1'){
+                        msg_error('El número de cedula ya se encuentra registrado')
+                    }
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
+                }
+            });
+        }
 
         function editar(id)
         {
@@ -292,6 +349,66 @@ if(isset($_SESSION['usuario']))
                             msg_error('Ocurrio un error interno')
                         }
                     });
+                }
+            });
+        }
+
+        function importar() {
+            Swal.fire({
+                title: 'Procesando',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                background: '#19191a',
+                showConfirmButton: false,
+                onOpen: ()=>{
+                    Swal.showLoading();
+                }
+            });
+            var fileUpload = document.getElementById("import_estudiantes");
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+            if (regex.test(fileUpload.value.toLowerCase())) {
+                if (typeof (FileReader) != "undefined") {
+                    var reader = new FileReader();
+                    if (reader.readAsBinaryString) {
+                        reader.onload = function (e) {
+                            GetTableFromExcel(e.target.result);
+                        };
+                        reader.readAsBinaryString(fileUpload.files[0]);
+                    } else {
+                        reader.onload = function (e) {
+                            var data = "";
+                            var bytes = new Uint8Array(e.target.result);
+                            for (var i = 0; i < bytes.byteLength; i++) {
+                                data += String.fromCharCode(bytes[i]);
+                            }
+                            GetTableFromExcel(data);
+                        };
+                        reader.readAsArrayBuffer(fileUpload.files[0]);
+                    }
+                } else {
+                    alert("This browser does not support HTML5.");
+                }
+            } else {
+                alert("Please upload a valid Excel file.");
+            }
+        }
+
+        function GetTableFromExcel(data) {
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+            var Sheet = workbook.SheetNames[0];
+            var estudiantes = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[Sheet]);
+            $.ajax({
+                data:  { estudiantes: JSON.stringify(estudiantes) },
+                url:   'acciones/v_estudiantes_import.php',
+                type:  'post',
+                success:  function (response) {
+                    swal.close();
+                    msg_success('Importación realizada correctamente')
+                },
+                error: function (error) {
+                    msg_error('Ocurrio un error interno')
                 }
             });
         }

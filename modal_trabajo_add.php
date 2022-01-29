@@ -46,7 +46,7 @@
                             <select class="form-control selectpicker" id="profesor_id" data-live-search="true">
                                 <option value="">Seleccione</option>
                                 <?php
-                                $sql_profesores = $con->query("SELECT * FROM profesores ORDER BY nombres ASC, apellidos ASC");
+                                $sql_profesores = $con->query("SELECT * FROM profesores WHERE estatus = 1 ORDER BY nombres ASC, apellidos ASC");
                                 while($row = mysqli_fetch_assoc($sql_profesores)){
                                 ?>
                                 <option value="<?php echo $row['id']; ?>"><?php echo $row['cedula']; ?> - <?php echo $row['nombres']; ?> <?php echo $row['apellidos']; ?></option>

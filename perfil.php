@@ -109,8 +109,7 @@ if (isset($_SESSION['usuario'])) {
                     url:    'acciones/v_usuario.php',
                     type:   'post',
                     success:  function (response) {
-                        encontrado = response
-                        console.log(encontrado)
+                        encontrado = response;
                         if(encontrado == '1'){
                             msg_error('El nombre de usuario ya existe')
                         }

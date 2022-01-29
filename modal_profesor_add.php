@@ -10,7 +10,7 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Nº de Cédula</label>
-                    <input type="number" class="form-control" id="cedula">
+                    <input type="number" class="form-control" id="cedula" onchange="validate(this.value)">
                 </div>
                 <div class="form-group">
                     <label>Nombres</label>
