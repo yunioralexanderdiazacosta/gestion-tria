@@ -1,8 +1,8 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php" style="background: #fff">
         <img src="img/logo2.png" width="50">
-        <div class="sidebar-brand-text text-dark mx-3"><span class="badge badge-warning">Control TRIA</span></div>
+        <div class="sidebar-brand-text text-dark mx-3"><span class="badge badge-primary">Control TRIA</span></div>
     </a>
 
     <!-- Divider -->
