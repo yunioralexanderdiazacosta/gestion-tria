@@ -385,7 +385,7 @@ if(isset($_SESSION['usuario']))
                 showConfirmButton: false,
                 timer: 1000
             }).then(function(){
-                //window.location = 'trabajos.php';
+                window.location = 'trabajos.php';
             })
         }
     </script>
